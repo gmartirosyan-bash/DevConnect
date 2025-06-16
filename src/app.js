@@ -19,6 +19,7 @@ mongoose.connect('mongodb+srv://gagikmartirosyan753:BarselonA753951@cluster0.rff
   })
 
 app.use(cors())
+app.use(express.static('dist'))
 app.use(express.json())
 
 app.use('/api/users', usersRouter)
