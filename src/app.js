@@ -8,8 +8,9 @@ const boardsRouter = require('./routes/boards')
 const columnsRouter = require('./routes/columns')
 const cardsRouter = require('./routes/cards')
 const loginRouter = require('./routes/login')
+require('dotenv').config();
 
-mongoose.connect('mongodb+srv://gagikmartirosyan753:BarselonA753951@cluster0.rffpa.mongodb.net/DevConnect?retryWrites=true&w=majority&appName=Cluster0')
+mongoose.connect(process.env.MONGO_DB)
   .then(() => {
     console.log('connected to MongoDB')
   })
