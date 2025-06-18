@@ -1,5 +1,5 @@
 const errorHandler = (error, req, res, next) => {
-  console.error(error.name)
+  console.error(error.name, error.message)
   if (error.name === 'CastError')
     return res.status(400).send({ error: 'malformatted id' })
   if (error.name === 'ValidationError')
@@ -11,7 +11,7 @@ const errorHandler = (error, req, res, next) => {
   if (error.status)
     return res.status(error.status).json({ error: error.message })
 
-  res.status(500).json({ error: 'internal server error' })
+  res.status(500).json({ error: `internal server error}` })
 }
 
 module.exports = errorHandler
