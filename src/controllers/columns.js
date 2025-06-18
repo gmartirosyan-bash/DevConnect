@@ -1,19 +1,23 @@
+const Card = require('../models/card')
 const Column = require('../models/column')
-const Board = require('../models/board')
+const assertBoardOwnership = require('../utils/assertBoardOwnership')
 
 const createColumn = async (req, res) => {
-  const user = req.user
-  const body = req.body
-  if(!user)
-    return res.status(401).json({ error: 'permission denied' })
-  if(!body.name || !body.boardId)
-    return res.status(400).json({ error: 'content missing' })
+  const { name, boardId } = req.body
+  const cleanName = name ? name.trim() : null  
+
+  if(!cleanName || !boardId)
+    return res.status(400).json({ error: 'content missing, name is required' })
+  const board = await assertBoardOwnership(boardId, req.user.id)
+  const existingColumn = await Column.findOne({ name: cleanName, board: boardId})
+  if(existingColumn)
+    return res.status(400).json({ error: 'Column with this name already exists' })
+
   const column = new Column({
-    name: body.name,
-    board: body.boardId
+    name: cleanName,
+    board: boardId
   })
   const savedColumn = await column.save()
-  const board = await Board.findById(body.boardId)
   board.columns = board.columns.concat(savedColumn)
   await board.save()
 
@@ -23,36 +27,34 @@ const createColumn = async (req, res) => {
 const renameColumn = async (req, res) => {
   const { columnId } = req.params
   const { name } = req.body
-  
-  if(!req.user)
-    return res.status(401).json({ error: 'permission denied' })
-  if(!name || name.trim() === '')
-    return res.status(400).json({ error: 'name is required' })
+  const cleanName = name ? name.trim() : null  
 
+  if(!cleanName)
+    return res.status(400).json({ error: 'name is required' })
   const column = await Column.findById(columnId)
   if(!column)
     return res.status(404).json({ error: 'column not found' })
 
-  column.name = name.trim()
+  const board = await assertBoardOwnership(column.board, req.user.id)
+  const existingColumn = await Column.findOne({ name: cleanName, board: board.id })
+  if(existingColumn && existingColumn.id.toString() !== columnId)
+    return res.status(400).json({ error: 'Column with this name already exists' })
+
+  column.name = cleanName
   await column.save()
 
-  res.status(201).json(column)
+  res.status(200).json(column)
 }
 
 const deleteColumn = async (req, res) => {
-  if(!req.user)
-    return res.status(401).json({ error: 'permission denied' })
   const column = await Column.findById(req.params.columnId)
   if(!column)
     return res.status(404).json({ error: 'column not found, probably already deleted' })
-  const board = await Board.findById(column.board)
-  if(board.owner.toString() !== req.user.id)
-    return res.status(401).json({ error: 'access denied' })
-  if(board.columns.length <= 1)
-    return res.status(400).json({ message: "Board must have at least one column"})
+  const board = await assertBoardOwnership(column.board, req.user.id)
 
   board.columns = board.columns.filter(col => col.toString() !== req.params.columnId)
   await board.save()
+  await Card.deleteMany({ column: column.id })
   await Column.findByIdAndDelete(req.params.columnId)
 
   res.status(204).end()

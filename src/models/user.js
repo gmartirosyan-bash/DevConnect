@@ -1,9 +1,22 @@
 const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
-  username: String,
-  email: String,
-  passwordHash: String,
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    minLength: 3
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  passwordHash: {
+    type: String,
+    required: true,
+    minLength: 3
+  },
   boards: [
     {
       type: mongoose.Schema.Types.ObjectId,

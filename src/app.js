@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
+require('express-async-errors')
 const middleware = require('./middlewares/index')
 const mongoose = require('mongoose')
 const usersRouter = require('./routes/users')
@@ -28,5 +29,8 @@ app.use('/api/boards', middleware.tokenExtractor, middleware.userExtractor, boar
 app.use('/api/columns', middleware.tokenExtractor, middleware.userExtractor, columnsRouter)
 app.use('/api/cards', middleware.tokenExtractor, middleware.userExtractor, cardsRouter)
 app.use('/api/login', loginRouter)
+
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
 module.exports = app
