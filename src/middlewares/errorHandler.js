@@ -1,5 +1,5 @@
 const errorHandler = (error, req, res, next) => {
-  console.error(error.name, error.message)
+  console.error(error.name, error.message, error)
   if (error.name === 'CastError')
     return res.status(400).send({ error: 'malformatted id' })
   if (error.name === 'ValidationError')
@@ -8,14 +8,9 @@ const errorHandler = (error, req, res, next) => {
     return res.status(400).json({ error: 'expected `username` to be unique' })
   if (error.name ===  'JsonWebTokenError')
     return res.status(401).json({ error: 'invalid token' })
-  console.log("CCCCCCCCCC", error)
-  console.log("DDDDDDDD", error.status)
   if (error.status){
-    console.log("AAAAAAAA")
     return res.status(error.status).json({ error: error.message })
   }
-  
-  console.log("EEEEEEEE", error.status)
   res.status(500).json({ error: 'internal server error' })
 }
 

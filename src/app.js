@@ -4,6 +4,8 @@ const cors = require('cors')
 require('express-async-errors')
 const middleware = require('./middlewares/index')
 const mongoose = require('mongoose')
+const path = require('path')
+
 const usersRouter = require('./routes/users')
 const boardsRouter = require('./routes/boards')
 const columnsRouter = require('./routes/columns')
@@ -29,6 +31,10 @@ app.use('/api/boards', middleware.tokenExtractor, middleware.userExtractor, boar
 app.use('/api/columns', middleware.tokenExtractor, middleware.userExtractor, columnsRouter)
 app.use('/api/cards', middleware.tokenExtractor, middleware.userExtractor, cardsRouter)
 app.use('/api/login', loginRouter)
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'dist', 'index.html'))
+})
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
