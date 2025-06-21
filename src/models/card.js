@@ -17,7 +17,7 @@ const cardSchema = new mongoose.Schema({
       ref: 'Column',
       required: true
     }
-}, { timestamps: true })
+})
 
 cardSchema.set('toJSON', {
   transform: (document, returnedObject) => {

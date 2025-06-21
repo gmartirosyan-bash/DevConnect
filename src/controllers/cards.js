@@ -1,7 +1,11 @@
 const Card = require('../models/card')
 const Column = require('../models/column')
-const Board = require('../models/board')
 const assertBoardOwnership = require('../utils/assertBoardOwnership')
+
+const getCards = async (req, res) => {
+  const cards = await Card.find({})
+  res.status(200).json(cards)
+}
 
 const createCard = async (req, res) => {
   const { title, columnId } = req.body
@@ -25,6 +29,25 @@ const createCard = async (req, res) => {
   await column.save()
 
   res.status(201).json(savedCard)
+}
+
+const renameCard = async (req, res) => {
+  const { cardId } = req.params
+  const { title } = req.body
+  const cleanTitle = title ? title.trim() : null  
+
+  if(!cleanTitle)
+    return res.status(400).json({ error: 'title is required' })
+  const card = await Card.findById(cardId)
+  if(!card)
+    return res.status(404).json({ error: 'card not found' })
+
+  await assertBoardOwnership(card.board, req.user.id)
+
+  card.title = cleanTitle
+  await card.save()
+
+  res.status(200).json(card)
 }
 
 const dragCard = async (req, res) => {
@@ -71,4 +94,10 @@ const deleteCard = async (req, res) => {
   res.status(204).end()
 }
 
-module.exports = { createCard, deleteCard, dragCard }
+module.exports = {
+  getCards,
+  createCard,
+  renameCard,
+  deleteCard,
+  dragCard
+}

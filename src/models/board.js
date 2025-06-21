@@ -13,7 +13,7 @@ const boardSchema = new mongoose.Schema({
       ref: 'Column'
     }
   ]
-}, { timestamps: true })
+})
 
 boardSchema.set('toJSON', {
   transform: (document, returnedObject) => {

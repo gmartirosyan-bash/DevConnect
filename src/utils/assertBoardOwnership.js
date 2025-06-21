@@ -1,7 +1,6 @@
 const Board = require('../models/board')
 
 const assertBoardOwnership = async (boardId, userId) => {
-  console.log('BBBBBBBBBBBBBBBBBB')
   const board = await Board.findById(boardId)
   if(!board){
     const err = new Error('Board not found')

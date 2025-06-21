@@ -16,12 +16,12 @@ const login = async (req, res) => {
 
   const userForToken = {
     username: user.username,
-    id: user._id,
+    id: user.id,
   }
 
   const token = jwt.sign(userForToken, process.env.JWT_SECRET)
 
-  res.status(200).send({ token, username: user.username, email: user.email })
+  res.status(200).send({ token, username: user.username, email: user.email, id: user.id })
 
 }
 

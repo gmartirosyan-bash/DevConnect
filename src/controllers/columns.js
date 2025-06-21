@@ -2,6 +2,11 @@ const Card = require('../models/card')
 const Column = require('../models/column')
 const assertBoardOwnership = require('../utils/assertBoardOwnership')
 
+const getColumns = async (req, res) => {
+  const columns = await Column.find({})
+  res.status(200).json(columns)
+}
+
 const createColumn = async (req, res) => {
   const { name, boardId } = req.body
   const cleanName = name ? name.trim() : null  
@@ -61,6 +66,7 @@ const deleteColumn = async (req, res) => {
 }
 
 module.exports = {
+  getColumns,
   createColumn,
   renameColumn,
   deleteColumn

@@ -3,6 +3,11 @@ const Board = require('../models/board')
 const Column = require('../models/column')
 const Card = require('../models/card')
 
+const getBoards = async (req, res) => {
+  const boards = await Board.find({})
+  res.status(200).json(boards)
+}
+
 const getFullBoard = async (req, res) => {
   const { boardId } = req.params
 
@@ -60,14 +65,15 @@ const deleteBoard = async (req, res) => {
   await user.save()
   
   await Promise.all([
-    Column.deleteMany({ board: boardId }),
     Card.deleteMany({ board: boardId }),
+    Column.deleteMany({ board: boardId }),
     Board.findByIdAndDelete(boardId)
   ])
   res.status(204).end()
 }
 
 module.exports = {
+  getBoards,
   getFullBoard,
   getBoardsByUser,
   renameBoard,

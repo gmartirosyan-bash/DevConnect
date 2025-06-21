@@ -27,9 +27,9 @@ app.use(express.static('dist'))
 app.use(express.json())
 
 app.use('/api/users', usersRouter)
-app.use('/api/boards', middleware.tokenExtractor, middleware.userExtractor, boardsRouter)
-app.use('/api/columns', middleware.tokenExtractor, middleware.userExtractor, columnsRouter)
-app.use('/api/cards', middleware.tokenExtractor, middleware.userExtractor, cardsRouter)
+app.use('/api/boards', boardsRouter)
+app.use('/api/columns', columnsRouter)
+app.use('/api/cards', cardsRouter)
 app.use('/api/login', loginRouter)
 
 app.get('*', (req, res) => {
