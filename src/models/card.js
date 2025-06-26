@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const cardSchema = new mongoose.Schema({
-  title: String,
+  name: String,
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

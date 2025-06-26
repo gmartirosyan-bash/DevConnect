@@ -8,10 +8,10 @@ const getCards = async (req, res) => {
 }
 
 const createCard = async (req, res) => {
-  const { title, columnId } = req.body
-  const cleanTitle = title ? title.trim() : null  
+  const { name, columnId } = req.body
+  const cleanName = name ? name.trim() : null  
 
-  if(!cleanTitle || !columnId)
+  if(!cleanName || !columnId)
     return res.status(400).json({ error: 'content missing'})
   const column = await Column.findById(columnId)
   if (!column)
@@ -19,7 +19,7 @@ const createCard = async (req, res) => {
   const board = await assertBoardOwnership(column.board, req.user.id)
 
   const card = new Card({
-    title: cleanTitle,
+    name: cleanName,
     owner: board.owner,
     board: board.id,
     column: columnId
@@ -33,18 +33,18 @@ const createCard = async (req, res) => {
 
 const renameCard = async (req, res) => {
   const { cardId } = req.params
-  const { title } = req.body
-  const cleanTitle = title ? title.trim() : null  
+  const { name } = req.body
+  const cleanName = name ? name.trim() : null  
 
-  if(!cleanTitle)
-    return res.status(400).json({ error: 'title is required' })
+  if(!cleanName)
+    return res.status(400).json({ error: 'name is required' })
   const card = await Card.findById(cardId)
   if(!card)
     return res.status(404).json({ error: 'card not found' })
 
   await assertBoardOwnership(card.board, req.user.id)
 
-  card.title = cleanTitle
+  card.name = cleanName
   await card.save()
 
   res.status(200).json(card)

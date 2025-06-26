@@ -24,29 +24,29 @@ const getBoardsByUser = async (req, res) => {
 
 const renameBoard = async (req, res) => {
   const { boardId } = req.params
-  const { title } = req.body
-  const newTitle = title ? title.trim() : null  
+  const { name } = req.body
+  const newName = name ? name.trim() : null  
 
-  if(!newTitle)
-    return res.status(400).json({ error: 'title is required' })
+  if(!newName)
+    return res.status(400).json({ error: 'name is required' })
   const board = await assertBoardOwnership(boardId, req.user.id)
 
-  board.title = newTitle
+  board.name = newName
   await board.save()
 
   res.status(200).json(board)
 }
 
 const createBoard = async (req, res) => {
-  const { title } = req.body
+  const { name } = req.body
   const user = req.user
-  const newTitle = title ? title.trim() : null  
+  const newName = name ? name.trim() : null  
 
-  if(!newTitle)
+  if(!newName)
     return res.status(400).json({ error: 'content missing' })
 
   const board = new Board({
-    title: newTitle,
+    name: newName,
     owner: user.id
   })
   const savedBoard = await board.save()

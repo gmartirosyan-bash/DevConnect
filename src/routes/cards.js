@@ -8,7 +8,7 @@ router.get('/public', cardsController.getCards)
 router.use(middleware.tokenExtractor, middleware.userExtractor)
 
 router.post('/', cardsController.createCard)
-router.patch('/:cardId/title', cardsController.renameCard)
+router.patch('/:cardId/name', cardsController.renameCard)
 router.patch('/:cardId/drag', cardsController.dragCard)
 router.delete('/:cardId', cardsController.deleteCard)
 
