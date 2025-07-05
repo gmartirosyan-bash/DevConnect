@@ -5,13 +5,15 @@ require('express-async-errors')
 const middleware = require('./middlewares/index')
 const mongoose = require('mongoose')
 const path = require('path')
+const setupGraphQL = require('./graphql/server')
+
+require('dotenv').config();
 
 const usersRouter = require('./routes/users')
 const boardsRouter = require('./routes/boards')
 const columnsRouter = require('./routes/columns')
 const cardsRouter = require('./routes/cards')
 const loginRouter = require('./routes/login')
-require('dotenv').config();
 
 mongoose.connect(process.env.MONGO_DB)
   .then(() => {
@@ -32,11 +34,16 @@ app.use('/api/columns', columnsRouter)
 app.use('/api/cards', cardsRouter)
 app.use('/api/login', loginRouter)
 
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '..', 'dist', 'index.html'))
-})
-
-app.use(middleware.unknownEndpoint)
-app.use(middleware.errorHandler)
+async function startServer() {
+  await setupGraphQL(app);
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '..', 'dist', 'index.html'))
+  })
+  
+  app.use(middleware.unknownEndpoint)
+  app.use(middleware.errorHandler)
+}
+startServer()
 
 module.exports = app

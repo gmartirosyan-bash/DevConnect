@@ -16,7 +16,11 @@ const cardSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Column',
       required: true
-    }
+  },
+  order: {
+    type: Number,
+    required: true
+  }
 })
 
 cardSchema.set('toJSON', {

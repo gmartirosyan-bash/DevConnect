@@ -18,12 +18,22 @@ const createCard = async (req, res) => {
     return res.status(400).json({ error: 'column not found' })
   const board = await assertBoardOwnership(column.board, req.user.id)
 
+  const maxOrderCard = await Card.findOne({ column: columnId })
+    .sort('-order')
+    .select('order')
+    .lean()
+
+  const baseOrder = maxOrderCard?.order ?? 0
+  const newOrder = Math.ceil(baseOrder / 10) * 10 + 10
+
   const card = new Card({
     name: cleanName,
     owner: board.owner,
     board: board.id,
-    column: columnId
+    column: columnId,
+    order: newOrder
   })
+
   const savedCard = await card.save()
   column.cards = column.cards.concat(savedCard)
   await column.save()
@@ -51,7 +61,7 @@ const renameCard = async (req, res) => {
 }
 
 const dragCard = async (req, res) => {
-  const { columnId } = req.body
+  const { index, columnId } = req.body
   const { cardId } = req.params
 
   if (!columnId) 
@@ -65,13 +75,33 @@ const dragCard = async (req, res) => {
   if (!oldColumn || !newColumn)
     return res.status(400).json({ error: 'column not found' })
 
-  oldColumn.cards = oldColumn.cards.filter(id => id.toString() !== cardId)
-  newColumn.cards.push(card._id)
+  const sortedCards = await Card
+    .find({ column: columnId, _id: { $ne: cardId } })
+    .sort({ order: 1 })
 
-  await oldColumn.save()
-  await newColumn.save()
+  const beforeCard = sortedCards[index - 1] || null
+  const afterCard = sortedCards[index] || null
 
-  card.column = newColumn._id
+  if (!beforeCard && afterCard) {
+    card.order = afterCard.order - 1
+  } else if (beforeCard && afterCard) {
+    card.order = (beforeCard.order + afterCard.order) / 2
+  } else if (beforeCard && !afterCard) {
+    card.order = beforeCard.order + 1
+  } else {
+    card.order = 0
+  }
+
+  if(oldColumn.id !== newColumn.id){
+    oldColumn.cards = oldColumn.cards.filter(id => id.toString() !== cardId)
+    newColumn.cards = newColumn.cards.concat(card._id)
+    
+    await oldColumn.save()
+    await newColumn.save()
+
+    card.column = newColumn._id
+  }
+
   await card.save()
 
   res.status(200).json(card)

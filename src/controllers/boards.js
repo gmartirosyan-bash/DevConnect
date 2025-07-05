@@ -53,7 +53,17 @@ const createBoard = async (req, res) => {
   user.boards = user.boards.concat(savedBoard._id)
   await user.save()
 
-  res.status(201).json(savedBoard)
+  const defaultColumns = [
+    { name: 'To Do', board: board._id },
+    { name: 'Doing', board: board._id },
+    { name: 'Done', board: board._id }
+  ]
+  const savedColumns = await Column.insertMany(defaultColumns)
+  savedBoard.columns = savedColumns.map(col => col._id)
+  await savedBoard.save()
+
+  const populatedBoard = await Board.findById(savedBoard._id).populate('columns')
+  res.status(201).json(populatedBoard)
 }
 
 const deleteBoard = async (req, res) => {
